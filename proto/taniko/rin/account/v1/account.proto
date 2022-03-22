@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package taniko.rin.account.v1;
+
+service AccountService {
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
+  rpc UpdateAccount(UpdateAccountRequest) returns (UpdateAccountResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+}
+
+message Account {
+  string id = 1;
+  string name = 2;
+  string display_name = 3;
+}
+
+message CreateAccountRequest {
+  string name = 1;
+  string display_name = 2;
+  string email = 3;
+  string password = 4;
+  string password_confirmation = 5;
+}
+
+message CreateAccountResponse {}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+message VerifyTokenRequest {
+  string verify_token = 1;
+}
+
+message VerifyTokenResponse {}
+
+message UpdateAccountRequest {
+  optional string name = 1;
+  optional string display_name = 2;
+  optional string email = 3;
+  optional string password = 4;
+  optional string password_confirmation = 5;
+}
+
+message UpdateAccountResponse {
+  Account account = 1;
+}

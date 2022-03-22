@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package taniko.rin.community.v1;
+
+service CommunityService {
+  rpc CreateCommunity(CreateCommunityRequest) returns (CreateCommunityResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc CreateInviteToken(CreateInviteTokenRequest) returns (CreateInviteTokenResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc ChangeUserRole(ChangeUserRoleRequest) returns (ChangeUserRoleResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc ListJoinCommunities(ListJoinCommunitiesRequest) returns (ListJoinCommunitiesResponse);
+}
+
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_OWNER = 1;
+  ROLE_ADMIN = 2;
+  ROLE_USER = 3;
+}
+
+enum Access {
+  ACCESS_UNSPECIFIED = 0;
+  ACCESS_PRIVATE = 1;
+  ACCESS_PUBLIC = 2;
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string display_name = 3;
+  Role role = 4;
+}
+
+message Community {
+  string id = 1;
+  string name = 2;
+  string display_name = 3;
+  Access access = 4;
+}
+
+message CreateCommunityRequest {
+  string name = 1;
+  string display_name = 2;
+  Access access = 3;
+  string user_name = 4;
+  string user_display_name = 5;
+}
+
+message CreateCommunityResponse {
+  Community community = 1;
+  User user = 2;
+}
+
+message ListJoinCommunitiesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListJoinCommunitiesResponse {
+  repeated Community communities = 1;
+  string next_page_token = 2;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message ListUsersRequest {
+  string community_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+}
+
+message CreateUserRequest {
+  oneof community {
+    string community_id = 1;
+    string community_name = 2;
+  }
+  string name = 3;
+  string display_name = 4;
+  optional string invite_token = 5;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message CreateInviteTokenRequest {
+  string community_id = 1;
+}
+
+message CreateInviteTokenResponse {
+  string invite_token = 1;
+}
+
+message ChangeUserRoleRequest {
+  string user_id = 1;
+  Role role = 2;
+}
+
+message ChangeUserRoleResponse {
+  Role role = 1;
+}

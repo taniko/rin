@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package taniko.rin.channel.v1;
+
+import "taniko/rin/community/v1/community.proto";
+
+service ChannelService {
+  rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse);
+  rpc UpdateChannel(UpdateChannelRequest) returns (UpdateChannelResponse);
+  rpc ArchiveChannel(ArchiveChannelRequest) returns (ArchiveChannelResponse);
+  rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc GetUserRole(GetUserRoleRequest) returns (GetUserRoleResponse);
+  rpc ListRoleUsers(ListRoleUsersRequest) returns (ListRoleUsersResponse);
+}
+
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_OWNER = 1;
+  ROLE_ADMIN = 2;
+  ROLE_USER = 3;
+}
+
+enum Access {
+  ACCESS_UNSPECIFIED = 0;
+  ACCESS_PUBLIC = 1;
+  ACCESS_PRIVATE = 2;
+}
+
+message Channel {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  Access access = 4;
+  bool is_active = 5;
+}
+
+message CreateChannelRequest {
+  string name = 1;
+  string description = 2;
+  Access access = 3;
+}
+
+message CreateChannelResponse {
+  Channel channel = 1;
+}
+
+message UpdateChannelRequest {
+  optional string name = 1;
+  optional string description = 2;
+  optional Access access = 3;
+}
+
+message UpdateChannelResponse {
+  Channel channel = 1;
+}
+
+message ListUsersRequest {
+  string channel_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListUsersResponse {
+  repeated taniko.rin.community.v1.User users = 1;
+  string next_page_token = 2;
+}
+
+message ArchiveChannelRequest {
+  string channel_id = 1;
+}
+
+message ArchiveChannelResponse {
+  Channel channel = 1;
+}
+
+message DeleteChannelRequest {
+  string channel_id = 1;
+}
+
+message DeleteChannelResponse {}
+
+message UpdateUserRoleRequest {
+  string channel_id = 1;
+  string user_id = 2;
+  Role role = 3;
+}
+
+message UpdateUserRoleResponse {
+  Role role = 1;
+}
+
+message ListRoleUsersRequest {
+  string channel_id = 1;
+  Role role = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListRoleUsersResponse {
+  repeated taniko.rin.community.v1.User users = 1;
+  string next_page_token = 2;
+}
+
+message GetUserRoleRequest {
+  string channel_id = 1;
+  string user_id = 2;
+}
+
+message GetUserRoleResponse {
+  Role role = 1;
+}

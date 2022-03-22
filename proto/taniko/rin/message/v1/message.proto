@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package taniko.rin.message.v1;
+
+import "google/protobuf/timestamp.proto";
+
+service MessageService {
+  rpc CreateMessage(CreateMessageRequest) returns (CreateMessageResponse);
+  rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
+}
+
+message Message {
+  string id = 1;
+  string user_id = 2;
+  string body = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message CreateMessageRequest {
+  string channel_id = 1;
+  string body = 2;
+}
+
+message CreateMessageResponse {
+  Message message = 1;
+}
+
+message DeleteMessageRequest {
+  string message_id = 1;
+}
+
+message DeleteMessageResponse {
+}
