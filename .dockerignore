@@ -1,0 +1,8 @@
+.github
+proto
+README.md
+buf.gen.yaml
+buf.work.yaml
+.idea
+.DS_Store
+.git

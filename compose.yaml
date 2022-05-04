@@ -3,9 +3,13 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: local.dockerfile
     environment:
       APP_ENV: development
       PORT: 9000
     ports:
       - "9000:9000"
+    volumes:
+      - "./cmd:/go/src/app/cmd"
+      - "./internal:/go/src/app/internal"
+      - "./vendor:/go/src/app/vendor"
