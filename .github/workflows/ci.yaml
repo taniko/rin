@@ -19,3 +19,7 @@ jobs:
             ${{ runner.os }}-go-
       - name: vet
         run: go vet ./...
+      - name: staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@v0.3.1
+          staticcheck ./...

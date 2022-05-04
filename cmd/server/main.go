@@ -50,6 +50,7 @@ func main() {
 	go func() {
 		logger.Info("start", nil)
 		if err := s.Serve(lis); err != nil && err != http.ErrServerClosed {
+			logger.Critical(fmt.Sprintf("server error: %v", err), nil)
 		}
 	}()
 	<-ctx.Done()
