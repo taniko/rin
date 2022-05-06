@@ -11,18 +11,20 @@ import (
 	"syscall"
 
 	"github.com/taniko/rin/internal/app"
+	"github.com/taniko/rin/internal/infrastructure/database"
 	account "github.com/taniko/rin/internal/pb/taniko/rin/account/v1"
 	channel "github.com/taniko/rin/internal/pb/taniko/rin/channel/v1"
 	community "github.com/taniko/rin/internal/pb/taniko/rin/community/v1"
 	message "github.com/taniko/rin/internal/pb/taniko/rin/message/v1"
 	"github.com/taniko/rin/internal/server"
+	"github.com/taniko/rin/internal/usecase"
 	"github.com/taniko/sumire"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 func main() {
-	undefinedKeys := undefinedEnvs([]string{"APP_ENV", "PORT"})
+	undefinedKeys := undefinedEnvs([]string{"APP_ENV", "PORT", "DB_USER", "DB_PASSWORD", "DB_HOST"})
 	if len(undefinedKeys) > 0 {
 		panic(fmt.Sprintf("undefined env: %s", strings.Join(undefinedKeys, ",")))
 	}
@@ -36,7 +38,15 @@ func main() {
 		os.Exit(1)
 	}
 	s := grpc.NewServer()
-	account.RegisterAccountServiceServer(s, server.NewAccountServer(logger))
+	db, err := database.NewDatabase("account")
+	if err != nil {
+		logger.Critical(fmt.Sprintf("failed to connect database: %v", err), nil)
+		os.Exit(1)
+	}
+	account.RegisterAccountServiceServer(s, server.NewAccountServer(
+		logger,
+		usecase.NewAccountUsecase(logger, database.NewAccountDatabase(db, logger)),
+	))
 	community.RegisterCommunityServiceServer(s, server.NewCommunityServer(logger))
 	channel.RegisterChannelServiceServer(s, server.NewChannelServer(logger))
 	message.RegisterMessageServiceServer(s, server.NewMessageServer(logger))

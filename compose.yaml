@@ -7,9 +7,26 @@ services:
     environment:
       APP_ENV: development
       PORT: 9000
+      DOCKER: true
     ports:
       - "9000:9000"
     volumes:
       - "./cmd:/go/src/app/cmd"
       - "./internal:/go/src/app/internal"
       - "./vendor:/go/src/app/vendor"
+    env_file: .env
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0.29
+    platform: linux/x86_64
+    environment:
+      MYSQL_ROOT_PASSWORD: "example"
+      MYSQL_USER: rin
+      MYSQL_PASSWORD: "example"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/db/data:/var/lib/mysql
+      - ./docker/db/init:/docker-entrypoint-initdb.d
+    command: "mysqld --default-time-zone=Asia/Tokyo"

@@ -5,6 +5,6 @@ tmp_dir = "tmp"
 cmd = "go build -o ./tmp/main cmd/server/main.go"
 bin = "tmp/main"
 include_ext = ["go"]
-exclude_dir = ["tmp", "vendor"]
+exclude_dir = ["tmp", "vendor", "cmd/verify"]
 exclude_regex = ["_test.go"]
 delay = 1000
