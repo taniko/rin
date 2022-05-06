@@ -21,7 +21,7 @@ type inmemoryAccountDatabase struct {
 }
 
 func (i inmemoryAccountDatabase) FindByNameOrEmail(_ context.Context, _, _ string) (*model.Account, error) {
-	panic("implement me")
+	return nil, nil
 }
 
 func newInmemoryAccountDatabase() inmemoryAccountDatabase {
