@@ -1,8 +1,9 @@
 package database
 
 import (
-	"fmt"
+	"time"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/taniko/rin/internal/app/env"
@@ -18,7 +19,17 @@ type Config struct {
 type Password string
 
 func New(environment env.Environment, password Password) (*sqlx.DB, error) {
-	return sqlx.Connect("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true&loc=Asia%%2FTokyo",
-		environment.DB.User, password, environment.DB.Host, environment.DB.NAME),
-	)
+	loc, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		return nil, err
+	}
+	conf := mysql.Config{
+		User:      environment.DB.User,
+		Passwd:    string(password),
+		Addr:      environment.DB.Host,
+		DBName:    environment.DB.NAME,
+		ParseTime: true,
+		Loc:       loc,
+	}
+	return sqlx.Connect("mysql", conf.FormatDSN())
 }
