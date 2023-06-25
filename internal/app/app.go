@@ -9,3 +9,7 @@ func getAppEnv() string {
 func IsDevelopment() bool {
 	return getAppEnv() == "development"
 }
+
+func IsLocal() bool {
+	return os.Getenv("LOCAL") == "true"
+}

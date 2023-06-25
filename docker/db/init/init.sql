@@ -1,7 +1,7 @@
-CREATE DATABASE account;
-GRANT ALL ON account.* TO 'rin'@'%';
+CREATE DATABASE rin;
+GRANT ALL ON rin.* TO 'rin'@'%';
 
-USE account;
+USE rin;
 CREATE TABLE account
 (
     id           varchar(36) PRIMARY KEY,

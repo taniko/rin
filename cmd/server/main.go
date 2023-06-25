@@ -2,78 +2,83 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"net"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
+	"time"
 
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/taniko/rin/internal/app"
+	"github.com/taniko/rin/internal/app/env"
+	"github.com/taniko/rin/internal/gen/taniko/rin/account/v1/accountv1connect"
+	"github.com/taniko/rin/internal/handler"
 	"github.com/taniko/rin/internal/infrastructure/database"
-	account "github.com/taniko/rin/internal/pb/taniko/rin/account/v1"
-	channel "github.com/taniko/rin/internal/pb/taniko/rin/channel/v1"
-	community "github.com/taniko/rin/internal/pb/taniko/rin/community/v1"
-	message "github.com/taniko/rin/internal/pb/taniko/rin/message/v1"
-	"github.com/taniko/rin/internal/server"
+	"github.com/taniko/rin/internal/infrastructure/local"
 	"github.com/taniko/rin/internal/usecase"
-	"github.com/taniko/sumire"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 func main() {
-	undefinedKeys := undefinedEnvs([]string{"APP_ENV", "PORT", "DB_USER", "DB_PASSWORD", "DB_HOST"})
-	if len(undefinedKeys) > 0 {
-		panic(fmt.Sprintf("undefined env: %s", strings.Join(undefinedKeys, ",")))
-	}
-	logger := sumire.NewLogger("sumire",
-		sumire.WithStandardHandler(sumire.INFO, os.Stdout),
-		sumire.WithRuntimeExtra(sumire.WARNING, sumire.DefaultRuntimeSkip),
-	)
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", os.Getenv("PORT")))
+	ctx := context.Background()
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	e, err := env.Load()
 	if err != nil {
-		logger.Critical(fmt.Sprintf("failed to listen: %v", err), nil)
-		os.Exit(1)
+		panic(err)
+	} else if e.IsNull() {
+		panic("environment is null")
 	}
-	s := grpc.NewServer()
-	db, err := database.NewDatabase("account")
-	if err != nil {
-		logger.Critical(fmt.Sprintf("failed to connect database: %v", err), nil)
-		os.Exit(1)
-	}
-	account.RegisterAccountServiceServer(s, server.NewAccountServer(
-		logger,
-		usecase.NewAccountUsecase(logger, database.NewAccountDatabase(db, logger)),
-	))
-	community.RegisterCommunityServiceServer(s, server.NewCommunityServer(logger))
-	channel.RegisterChannelServiceServer(s, server.NewChannelServer(logger))
-	message.RegisterMessageServiceServer(s, server.NewMessageServer(logger))
-
+	environment := e.Value()
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	if app.IsDevelopment() {
-		reflection.Register(s)
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 
+	client, err := local.NewSecretClient(ctx)
+	if err != nil {
+		log.Panic().Err(err)
+	}
+	dbPassword, err := client.GetSecret(ctx, environment.DB.Key)
+	if err != nil {
+		log.Panic().Err(err)
+	}
+	db, err := database.New(environment, database.Password(dbPassword))
+	if err != nil {
+		panic(err)
+	}
+
+	accountRepo := database.NewAccount(db)
+
+	signingKey, err := client.GetSecret(ctx, "signing-key")
+	if err != nil {
+		log.Panic().Err(err)
+	}
+	mux := http.NewServeMux()
+	mux.Handle(accountv1connect.NewAccountServiceHandler(handler.NewAccount(usecase.NewAccountUsecase(
+		accountRepo,
+		[]byte(signingKey)),
+	)))
+	srv := &http.Server{
+		Addr:              environment.Host,
+		Handler:           mux,
+		ReadHeaderTimeout: time.Second,
+		ReadTimeout:       5 * time.Minute,
+		WriteTimeout:      5 * time.Minute,
+		MaxHeaderBytes:    8 * 1024,
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	go func() {
-		logger.Info("start", nil)
-		if err := s.Serve(lis); err != nil && err != http.ErrServerClosed {
-			logger.Critical(fmt.Sprintf("server error: %v", err), nil)
+		log.Info().Msg("start server")
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal().Err(err).Msg("server listen")
 		}
 	}()
 	<-ctx.Done()
-	s.GracefulStop()
-	logger.Info("stop server", nil)
-}
-
-func undefinedEnvs(keys []string) []string {
-	var result []string
-	for _, key := range keys {
-		if os.Getenv(key) == "" {
-			result = append(result, key)
-		}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal().Err(err).Msg("server shutdown")
 	}
-	return result
 }

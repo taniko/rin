@@ -2,14 +2,23 @@ package database
 
 import (
 	"fmt"
-	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/taniko/rin/internal/app/env"
 )
 
-func NewDatabase(database string) (*sqlx.DB, error) {
+type Config struct {
+	Host     string
+	Database string
+	User     string
+	Password string
+}
+
+type Password string
+
+func New(environment env.Environment, password Password) (*sqlx.DB, error) {
 	return sqlx.Connect("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true&loc=Asia%%2FTokyo",
-		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), database),
+		environment.DB.User, password, environment.DB.Host, environment.DB.NAME),
 	)
 }

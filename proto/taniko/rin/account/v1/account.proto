@@ -23,7 +23,9 @@ message CreateAccountRequest {
   string password_confirmation = 5;
 }
 
-message CreateAccountResponse {}
+message CreateAccountResponse {
+  string token = 1;
+}
 
 message LoginRequest {
   string email = 1;
