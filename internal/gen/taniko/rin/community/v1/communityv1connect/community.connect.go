@@ -36,9 +36,8 @@ const (
 	// CommunityServiceCreateCommunityProcedure is the fully-qualified name of the CommunityService's
 	// CreateCommunity RPC.
 	CommunityServiceCreateCommunityProcedure = "/taniko.rin.community.v1.CommunityService/CreateCommunity"
-	// CommunityServiceCreateUserProcedure is the fully-qualified name of the CommunityService's
-	// CreateUser RPC.
-	CommunityServiceCreateUserProcedure = "/taniko.rin.community.v1.CommunityService/CreateUser"
+	// CommunityServiceJoinProcedure is the fully-qualified name of the CommunityService's Join RPC.
+	CommunityServiceJoinProcedure = "/taniko.rin.community.v1.CommunityService/Join"
 	// CommunityServiceCreateInviteTokenProcedure is the fully-qualified name of the CommunityService's
 	// CreateInviteToken RPC.
 	CommunityServiceCreateInviteTokenProcedure = "/taniko.rin.community.v1.CommunityService/CreateInviteToken"
@@ -59,7 +58,7 @@ const (
 // CommunityServiceClient is a client for the taniko.rin.community.v1.CommunityService service.
 type CommunityServiceClient interface {
 	CreateCommunity(context.Context, *connect_go.Request[v1.CreateCommunityRequest]) (*connect_go.Response[v1.CreateCommunityResponse], error)
-	CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error)
+	Join(context.Context, *connect_go.Request[v1.JoinRequest]) (*connect_go.Response[v1.JoinResponse], error)
 	CreateInviteToken(context.Context, *connect_go.Request[v1.CreateInviteTokenRequest]) (*connect_go.Response[v1.CreateInviteTokenResponse], error)
 	GetUser(context.Context, *connect_go.Request[v1.GetUserRequest]) (*connect_go.Response[v1.GetUserResponse], error)
 	ChangeUserRole(context.Context, *connect_go.Request[v1.ChangeUserRoleRequest]) (*connect_go.Response[v1.ChangeUserRoleResponse], error)
@@ -82,9 +81,9 @@ func NewCommunityServiceClient(httpClient connect_go.HTTPClient, baseURL string,
 			baseURL+CommunityServiceCreateCommunityProcedure,
 			opts...,
 		),
-		createUser: connect_go.NewClient[v1.CreateUserRequest, v1.CreateUserResponse](
+		join: connect_go.NewClient[v1.JoinRequest, v1.JoinResponse](
 			httpClient,
-			baseURL+CommunityServiceCreateUserProcedure,
+			baseURL+CommunityServiceJoinProcedure,
 			opts...,
 		),
 		createInviteToken: connect_go.NewClient[v1.CreateInviteTokenRequest, v1.CreateInviteTokenResponse](
@@ -118,7 +117,7 @@ func NewCommunityServiceClient(httpClient connect_go.HTTPClient, baseURL string,
 // communityServiceClient implements CommunityServiceClient.
 type communityServiceClient struct {
 	createCommunity     *connect_go.Client[v1.CreateCommunityRequest, v1.CreateCommunityResponse]
-	createUser          *connect_go.Client[v1.CreateUserRequest, v1.CreateUserResponse]
+	join                *connect_go.Client[v1.JoinRequest, v1.JoinResponse]
 	createInviteToken   *connect_go.Client[v1.CreateInviteTokenRequest, v1.CreateInviteTokenResponse]
 	getUser             *connect_go.Client[v1.GetUserRequest, v1.GetUserResponse]
 	changeUserRole      *connect_go.Client[v1.ChangeUserRoleRequest, v1.ChangeUserRoleResponse]
@@ -131,9 +130,9 @@ func (c *communityServiceClient) CreateCommunity(ctx context.Context, req *conne
 	return c.createCommunity.CallUnary(ctx, req)
 }
 
-// CreateUser calls taniko.rin.community.v1.CommunityService.CreateUser.
-func (c *communityServiceClient) CreateUser(ctx context.Context, req *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error) {
-	return c.createUser.CallUnary(ctx, req)
+// Join calls taniko.rin.community.v1.CommunityService.Join.
+func (c *communityServiceClient) Join(ctx context.Context, req *connect_go.Request[v1.JoinRequest]) (*connect_go.Response[v1.JoinResponse], error) {
+	return c.join.CallUnary(ctx, req)
 }
 
 // CreateInviteToken calls taniko.rin.community.v1.CommunityService.CreateInviteToken.
@@ -165,7 +164,7 @@ func (c *communityServiceClient) ListJoinCommunities(ctx context.Context, req *c
 // service.
 type CommunityServiceHandler interface {
 	CreateCommunity(context.Context, *connect_go.Request[v1.CreateCommunityRequest]) (*connect_go.Response[v1.CreateCommunityResponse], error)
-	CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error)
+	Join(context.Context, *connect_go.Request[v1.JoinRequest]) (*connect_go.Response[v1.JoinResponse], error)
 	CreateInviteToken(context.Context, *connect_go.Request[v1.CreateInviteTokenRequest]) (*connect_go.Response[v1.CreateInviteTokenResponse], error)
 	GetUser(context.Context, *connect_go.Request[v1.GetUserRequest]) (*connect_go.Response[v1.GetUserResponse], error)
 	ChangeUserRole(context.Context, *connect_go.Request[v1.ChangeUserRoleRequest]) (*connect_go.Response[v1.ChangeUserRoleResponse], error)
@@ -185,9 +184,9 @@ func NewCommunityServiceHandler(svc CommunityServiceHandler, opts ...connect_go.
 		svc.CreateCommunity,
 		opts...,
 	))
-	mux.Handle(CommunityServiceCreateUserProcedure, connect_go.NewUnaryHandler(
-		CommunityServiceCreateUserProcedure,
-		svc.CreateUser,
+	mux.Handle(CommunityServiceJoinProcedure, connect_go.NewUnaryHandler(
+		CommunityServiceJoinProcedure,
+		svc.Join,
 		opts...,
 	))
 	mux.Handle(CommunityServiceCreateInviteTokenProcedure, connect_go.NewUnaryHandler(
@@ -225,8 +224,8 @@ func (UnimplementedCommunityServiceHandler) CreateCommunity(context.Context, *co
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("taniko.rin.community.v1.CommunityService.CreateCommunity is not implemented"))
 }
 
-func (UnimplementedCommunityServiceHandler) CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("taniko.rin.community.v1.CommunityService.CreateUser is not implemented"))
+func (UnimplementedCommunityServiceHandler) Join(context.Context, *connect_go.Request[v1.JoinRequest]) (*connect_go.Response[v1.JoinResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("taniko.rin.community.v1.CommunityService.Join is not implemented"))
 }
 
 func (UnimplementedCommunityServiceHandler) CreateInviteToken(context.Context, *connect_go.Request[v1.CreateInviteTokenRequest]) (*connect_go.Response[v1.CreateInviteTokenResponse], error) {

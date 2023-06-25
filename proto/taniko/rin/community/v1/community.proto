@@ -4,7 +4,7 @@ package taniko.rin.community.v1;
 
 service CommunityService {
   rpc CreateCommunity(CreateCommunityRequest) returns (CreateCommunityResponse);
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc Join(JoinRequest) returns (JoinResponse);
   rpc CreateInviteToken(CreateInviteTokenRequest) returns (CreateInviteTokenResponse);
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
   rpc ChangeUserRole(ChangeUserRoleRequest) returns (ChangeUserRoleResponse);
@@ -78,7 +78,7 @@ message ListUsersResponse {
   string next_page_token = 2;
 }
 
-message CreateUserRequest {
+message JoinRequest {
   oneof community {
     string community_id = 1;
     string community_name = 2;
@@ -88,8 +88,7 @@ message CreateUserRequest {
   optional string invite_token = 5;
 }
 
-message CreateUserResponse {
-  User user = 1;
+message JoinResponse {
 }
 
 message CreateInviteTokenRequest {

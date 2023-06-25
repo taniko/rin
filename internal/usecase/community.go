@@ -11,10 +11,14 @@ import (
 	"golang.org/x/xerrors"
 )
 
-var ErrAlreadyExistCommunity = errors.New("already exists")
+var (
+	ErrAlreadyExistCommunity = errors.New("already exists")
+	ErrPermissionDeny        = errors.New("permission deny")
+)
 
 type Community interface {
 	Create(ctx context.Context, name community.Name, displayName community.DisplayName, access community.Access, user account.ID) error
+	IssueInvitation(ctx context.Context, user account.ID, community community.ID) (*community.Invitation, error)
 }
 
 type communityUsecase struct {
@@ -43,4 +47,18 @@ func (c communityUsecase) Create(ctx context.Context, name community.Name, displ
 		return xerrors.Errorf("create community: %w", err)
 	}
 	return nil
+}
+
+func (c communityUsecase) IssueInvitation(ctx context.Context, userID account.ID, communityID community.ID) (*community.Invitation, error) {
+	role, err := c.community.GetUserRole(ctx, communityID, userID)
+	if err != nil {
+		return nil, xerrors.Errorf("get user role: %w", err)
+	} else if !role.CanIssueInvitation() {
+		return nil, ErrPermissionDeny
+	}
+	invitation, err := c.community.IssueInvitation(ctx, communityID, userID)
+	if err != nil {
+		return nil, xerrors.Errorf("issue invitation: %w", err)
+	}
+	return invitation, nil
 }
