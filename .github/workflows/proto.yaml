@@ -9,4 +9,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: bufbuild/buf-setup-action@v1.22
-      - uses: bufbuild/buf-lint-action@v1.0
+      - uses: bufbuild/buf-lint-action@v1
