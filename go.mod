@@ -1,6 +1,6 @@
 module github.com/taniko/rin
 
-go 1.18
+go 1.20
 
 require (
 	github.com/Netflix/go-env v0.0.0-20220526054621-78278af1949d
@@ -13,7 +13,6 @@ require (
 	github.com/rs/zerolog v1.29.1
 	github.com/stretchr/testify v1.8.4
 	github.com/taniko/nullable v0.1.1
-	github.com/taniko/sumire v0.3.1
 	golang.org/x/crypto v0.10.0
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2
 	google.golang.org/protobuf v1.30.0
