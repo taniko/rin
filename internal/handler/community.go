@@ -20,7 +20,7 @@ func (c communityServer) CreateCommunity(ctx context.Context, req *connect.Reque
 	panic("implement me")
 }
 
-func (c communityServer) CreateUser(ctx context.Context, req *connect.Request[v1.CreateUserRequest]) (*connect.Response[v1.CreateUserResponse], error) {
+func (c communityServer) Join(ctx context.Context, c2 *connect.Request[v1.JoinRequest]) (*connect.Response[v1.JoinResponse], error) {
 	//TODO implement me
 	panic("implement me")
 }
