@@ -1,8 +1,5 @@
 name: buf
-on:
-  push:
-    paths:
-      - 'proto/**'
+on: [push, pull_request]
 jobs:
   lint:
     runs-on: ubuntu-latest
