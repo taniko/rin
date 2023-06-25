@@ -6,17 +6,13 @@ import (
 	"github.com/bufbuild/connect-go"
 	v1 "github.com/taniko/rin/internal/gen/taniko/rin/channel/v1"
 	"github.com/taniko/rin/internal/gen/taniko/rin/channel/v1/channelv1connect"
-	"github.com/taniko/sumire"
 )
 
 type channelHandler struct {
-	logger *sumire.Sumire
 }
 
-func NewChannel(logger *sumire.Sumire) channelv1connect.ChannelServiceHandler {
-	return &channelHandler{
-		logger: logger,
-	}
+func NewChannel() channelv1connect.ChannelServiceHandler {
+	return &channelHandler{}
 }
 
 func (c channelHandler) CreateChannel(ctx context.Context, c2 *connect.Request[v1.CreateChannelRequest]) (*connect.Response[v1.CreateChannelResponse], error) {
