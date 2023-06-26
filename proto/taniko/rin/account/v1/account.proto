@@ -40,7 +40,9 @@ message VerifyTokenRequest {
   string verify_token = 1;
 }
 
-message VerifyTokenResponse {}
+message VerifyTokenResponse {
+  bool success = 1;
+}
 
 message UpdateAccountRequest {
   optional string name = 1;
