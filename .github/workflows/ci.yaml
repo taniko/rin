@@ -1,7 +1,7 @@
 name: ci
-on: [push, pull_request]
+on: [push]
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,3 +20,9 @@ jobs:
           staticcheck ./...
       - name: test
         run: go test ./...
+  buf-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bufbuild/buf-setup-action@v1.22.0
+      - uses: bufbuild/buf-lint-action@v1
