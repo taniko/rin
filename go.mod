@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Netflix/go-env v0.0.0-20220526054621-78278af1949d
-	github.com/bufbuild/connect-go v1.8.0
+	github.com/bufbuild/connect-go v1.10.0
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/golang/mock v1.6.0
